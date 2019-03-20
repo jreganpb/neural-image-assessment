@@ -1,7 +1,5 @@
 import numpy as np
 import os
-import glob
-import subprocess
 import tensorflow as tf
 
 # path to the images and the text file which holds the scores and ids
@@ -12,14 +10,14 @@ IMAGE_SIZE = None # Keras accepts None for height and width fields.
 
 def get_available_files(pathname,bucket='ds3rdparty'):
     q = 'sudo aws s3 ls s3://' + bucket + '/' + pathname + '/ > /tmp/data.txt'
-    subprocess.run(q)
+    os.system(q)
     with open('/tmp/data.txt', 'r') as f:
         dat = f.readlines()
     dat = sorted(dat)
     iidnums = {}
     files = []
     for i in dat:
-        tmp = i.split()
+        tmp = i.rstrip().split()
         iid = int(tmp[3].split('.')[0])
         iidnums[iid] = 1
         files.append(base_images_path + i)
