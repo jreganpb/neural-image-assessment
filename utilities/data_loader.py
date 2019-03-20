@@ -1,17 +1,34 @@
 import numpy as np
 import os
 import glob
-
+import subprocess
 import tensorflow as tf
 
 # path to the images and the text file which holds the scores and ids
-base_images_path = r'D:\Yue\Documents\Datasets\AVA_dataset\images\images\\'
-ava_dataset_path = r'D:\Yue\Documents\Datasets\AVA_dataset\AVA.txt'
+base_images_path = r'/mnt/s3/AVA/data/images/'
+ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 
-IMAGE_SIZE = 224
+IMAGE_SIZE = None # Keras accepts None for height and width fields.
 
-files = glob.glob(base_images_path + "*.jpg")
-files = sorted(files)
+def get_available_files(pathname,bucket='ds3rdparty'):
+    q = 'sudo aws s3 ls s3://' + bucket + '/' + pathname + '/ > /tmp/data.txt'
+    subprocess.run(q)
+    with open('/tmp/data.txt', 'r') as f:
+        dat = f.readlines()
+    dat = sorted(dat)
+    iidnums = {}
+    files = []
+    for i in dat:
+        tmp = i.split()
+        iid = int(tmp[3].split('.')[0])
+        iidnums[iid] = 1
+        files.append(base_images_path + i)
+    return iidnums, sorted(files)
+
+#files = glob.glob(base_images_path + "*.jpg")
+#files = sorted(files)
+
+iidnums, files = get_available_files(pathname='/'.join(base_images_path.split('/')[3:6]) + '/')
 
 train_image_paths = []
 train_scores = []
@@ -22,7 +39,8 @@ with open(ava_dataset_path, mode='r') as f:
     for i, line in enumerate(lines):
         token = line.split()
         id = int(token[1])
-
+        if id not in iidnums: ## File isn't on S3, continue...
+            continue
         values = np.array(token[2:12], dtype='float32')
         values /= values.sum()
 
@@ -98,7 +116,9 @@ def train_generator(batchsize, shuffle=True):
     with tf.Session() as sess:
         # create a dataset
         train_dataset = tf.data.Dataset.from_tensor_slices((train_image_paths, train_scores))
-        train_dataset = train_dataset.map(parse_data, num_parallel_calls=2)
+        ## Below I'm using without augmentation to interact w/ raw images
+        ## This is because transforms can degrade aesthetic quality
+        train_dataset = train_dataset.map(parse_data_without_augmentation, num_parallel_calls=2)
 
         train_dataset = train_dataset.batch(batchsize)
         train_dataset = train_dataset.repeat()
