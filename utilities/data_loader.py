@@ -7,7 +7,7 @@ import cv2
 base_images_path = r'/mnt/s3/AVA/data/images/'
 ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 
-IMAGE_SIZE = 224 # Keras accepts None for height and width fields.
+IMAGE_SIZE = 512 # Keras accepts None for height and width fields.
 
 def get_available_files(pathname,bucket='ds3rdparty'):
     os.system('rm /tmp/data.txt')
@@ -89,9 +89,9 @@ def parse_data(filename, scores):
     '''
     image = tf.read_file(filename)
     image = tf.image.decode_jpeg(image, channels=3)
-    image = pad_image(image)
-    image = tf.image.resize_images(image, (256, 256))
-    image = tf.random_crop(image, size=(IMAGE_SIZE, IMAGE_SIZE, 3))
+    image = tf.image.resize_image_with_pad(image, method=tf.image.ResizeMethod.BILINEAR, target_height=IMAGE_SIZE, target_width=IMAGE_SIZE)
+    #image = tf.image.resize_images(image, (256, 256))
+    #image = tf.random_crop(image, size=(IMAGE_SIZE, IMAGE_SIZE, 3))
     image = tf.image.random_flip_left_right(image)
     image = (tf.cast(image, tf.float32) - 127.5) / 127.5
     return image, scores
@@ -109,8 +109,9 @@ def parse_data_without_augmentation(filename, scores):
     '''
     image = tf.read_file(filename)
     image = tf.image.decode_jpeg(image, channels=3)
-    image = pad_image(image)
-    image = tf.image.resize_images(image, (IMAGE_SIZE, IMAGE_SIZE))
+    #image = pad_image(image)
+    image = tf.image.resize_image_with_pad(image, method=tf.image.ResizeMethod.BILINEAR, target_height=IMAGE_SIZE,
+                                           target_width=IMAGE_SIZE)
     image = (tf.cast(image, tf.float32) - 127.5) / 127.5
     return image, scores
 
