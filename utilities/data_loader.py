@@ -9,6 +9,7 @@ ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 IMAGE_SIZE = None # Keras accepts None for height and width fields.
 
 def get_available_files(pathname,bucket='ds3rdparty'):
+    os.system('rm /tmp/data.txt')
     q = 'sudo aws s3 ls s3://' + bucket + '/' + pathname + '/ > /tmp/data.txt'
     os.system(q)
     with open('/tmp/data.txt', 'r') as f:
