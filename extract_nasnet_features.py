@@ -1,8 +1,8 @@
 import tensorflow as tf
 from keras import backend as K
 
-from utils.nasnet import NASNetMobile
-from utils.data_loader import train_generator, val_generator
+from utilities.nasnet import NASNetMobile
+from utilities.data_loader import train_generator, val_generator
 
 sess = tf.Session()
 K.set_session(sess)

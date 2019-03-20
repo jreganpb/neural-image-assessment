@@ -9,7 +9,7 @@ from keras.applications.mobilenet import preprocess_input
 from keras.preprocessing.image import load_img, img_to_array
 import tensorflow as tf
 
-from utils.score_utils import mean_score, std_score
+from utilities.score_utils import mean_score, std_score
 
 parser = argparse.ArgumentParser(description='Evaluate NIMA(Inception ResNet v2)')
 parser.add_argument('-dir', type=str, default=None,

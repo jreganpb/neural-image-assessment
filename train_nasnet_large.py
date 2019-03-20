@@ -6,9 +6,9 @@ from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.optimizers import Adam
 from keras import backend as K
 
-from utils.nasnet import NASNetLarge
+from utilities.nasnet import NASNetLarge
 
-from utils.data_loader import train_generator, val_generator
+from utilities.data_loader import train_generator, val_generator
 
 '''
 Below is a modification to the TensorBoard callback to perform 

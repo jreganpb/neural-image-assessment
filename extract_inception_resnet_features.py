@@ -2,7 +2,7 @@ import tensorflow as tf
 from keras import backend as K
 
 from keras.applications.inception_resnet_v2 import InceptionResNetV2
-from utils.data_loader import train_generator, val_generator
+from utilities.data_loader import train_generator, val_generator
 
 sess = tf.Session()
 K.set_session(sess)

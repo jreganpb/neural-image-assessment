@@ -7,8 +7,8 @@ from keras.layers import Dense, Dropout
 from keras.preprocessing.image import load_img, img_to_array
 import tensorflow as tf
 
-from utils.nasnet import NASNetMobile, preprocess_input
-from utils.score_utils import mean_score, std_score
+from utilities.nasnet import NASNetMobile, preprocess_input
+from utilities.score_utils import mean_score, std_score
 
 parser = argparse.ArgumentParser(description='Evaluate NIMA(Inception ResNet v2)')
 parser.add_argument('-dir', type=str, default=None,
