@@ -36,6 +36,7 @@ train_scores = []
 print("Loading training set and val set")
 with open(ava_dataset_path, mode='r') as f:
     lines = f.readlines()
+    i2 = 0
     for i, line in enumerate(lines):
         token = line.split()
         id = int(token[1])
@@ -50,8 +51,9 @@ with open(ava_dataset_path, mode='r') as f:
             train_scores.append(values)
 
         count = len(files) // 20
-        if i % count == 0 and i != 0:
-            print('Loaded %d percent of the dataset' % (i / float(len(files)) * 100))
+        if i2 % count == 0 and i2 != 0:
+            print('Loaded %d percent of the dataset' % (i2 / float(len(files)) * 100))
+        i2 = i2 + 1
 
 train_image_paths = np.array(train_image_paths)
 train_scores = np.array(train_scores, dtype='float32')
