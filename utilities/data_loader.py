@@ -1,12 +1,13 @@
 import numpy as np
 import os
 import tensorflow as tf
+import cv2
 
 # path to the images and the text file which holds the scores and ids
 base_images_path = r'/mnt/s3/AVA/data/images/'
 ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 
-IMAGE_SIZE = None # Keras accepts None for height and width fields.
+IMAGE_SIZE = 224 # Keras accepts None for height and width fields.
 
 def get_available_files(pathname,bucket='ds3rdparty'):
     os.system('rm /tmp/data.txt')
@@ -27,7 +28,7 @@ def get_available_files(pathname,bucket='ds3rdparty'):
 #files = glob.glob(base_images_path + "*.jpg")
 #files = sorted(files)
 
-iidnums, files = get_available_files(pathname='/'.join(base_images_path.split('/')[3:6]) + '/')
+iidnums, files = get_available_files(pathname='/'.join(base_images_path.split('/')[3:6]))
 
 train_image_paths = []
 train_scores = []
@@ -48,9 +49,9 @@ with open(ava_dataset_path, mode='r') as f:
             train_image_paths.append(file_path)
             train_scores.append(values)
 
-        count = 255000 // 20
+        count = len(files) // 20
         if i % count == 0 and i != 0:
-            print('Loaded %d percent of the dataset' % (i / 255000. * 100))
+            print('Loaded %d percent of the dataset' % (i / float(len(files)) * 100))
 
 train_image_paths = np.array(train_image_paths)
 train_scores = np.array(train_scores, dtype='float32')
@@ -63,6 +64,17 @@ train_scores = train_scores[:-5000]
 print('Train set size : ', train_image_paths.shape, train_scores.shape)
 print('Val set size : ', val_image_paths.shape, val_scores.shape)
 print('Train and validation datasets ready !')
+
+def pad_image(image):
+    height, width, dim = image.shape
+    diff = int(float(abs(width-height)) / 2.)
+    top = 0; bottom = 0; left = 0; right = 0
+    if height >= width: # Pad wide
+        left = diff; right = diff
+    elif width >= height: # Pad height
+        top = diff; bottom = diff
+    image = cv2.copyMakeBorder(image,top,bottom,left,right,cv2.BORDER_CONSTANT,value=[255,255,255])
+    return image
 
 def parse_data(filename, scores):
     '''
@@ -77,6 +89,7 @@ def parse_data(filename, scores):
     '''
     image = tf.read_file(filename)
     image = tf.image.decode_jpeg(image, channels=3)
+    image = pad_image(image)
     image = tf.image.resize_images(image, (256, 256))
     image = tf.random_crop(image, size=(IMAGE_SIZE, IMAGE_SIZE, 3))
     image = tf.image.random_flip_left_right(image)
@@ -96,6 +109,7 @@ def parse_data_without_augmentation(filename, scores):
     '''
     image = tf.read_file(filename)
     image = tf.image.decode_jpeg(image, channels=3)
+    image = pad_image(image)
     image = tf.image.resize_images(image, (IMAGE_SIZE, IMAGE_SIZE))
     image = (tf.cast(image, tf.float32) - 127.5) / 127.5
     return image, scores
