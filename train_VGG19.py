@@ -86,4 +86,6 @@ batchsize = 64
 epochs = 10
 
 model.fit_generator(image_generator(files=train_image_paths,scores=train_scores,batch_size=batchsize),
-                    validation_data=image_generator(files=val_image_paths,scores=val_scores,batch_size=batchsize))
+                    steps_per_epoch=len(train_image_paths) // batchsize, epochs=epochs,
+                    validation_data=image_generator(files=val_image_paths,scores=val_scores,batch_size=batchsize),
+                    validation_steps=len(val_image_paths) // batchsize)
