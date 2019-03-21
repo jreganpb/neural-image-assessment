@@ -7,7 +7,7 @@ from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.optimizers import Adam
 from keras import backend as K
 
-from utilities.data_loader import train_generator, val_generator
+from utilities.keras_data_loader import train_generator, val_generator
 
 '''
 Below is a modification to the TensorBoard callback to perform
@@ -62,7 +62,7 @@ for layer in base_model.layers:
     layer.trainable = False
 
 x = Dropout(0.75)(base_model.output)
-x = Dense(10, activation='sigmoid')(x)
+x = Dense(10, activation='softmax')(x)
 
 model = Model(base_model.input, x)
 model.summary()
@@ -70,20 +70,20 @@ optimizer = Adam(lr=1e-3)
 model.compile(optimizer, loss=earth_mover_loss)
 
 # load weights from trained model if it exists
-if os.path.exists('weights/inception_resnet_weights.h5'):
-    model.load_weights('weights/inception_resnet_weights.h5')
+if os.path.exists('weights/vgg19_weights.h5'):
+    model.load_weights('weights/vgg19_weights.h5')
 
 # load pre-trained NIMA(Inception ResNet V2) classifier weights
 # if os.path.exists('weights/inception_resnet_pretrained_weights.h5'):
 #     model.load_weights('weights/inception_resnet_pretrained_weights.h5', by_name=True)
 
-checkpoint = ModelCheckpoint('weights/inception_resnet_weights.h5', monitor='val_loss', verbose=1, save_weights_only=True, save_best_only=True,
+checkpoint = ModelCheckpoint('weights/vgg19_weights.h5', monitor='val_loss', verbose=1, save_weights_only=True, save_best_only=True,
                              mode='min')
 tensorboard = TensorBoardBatch()
 callbacks = [checkpoint, tensorboard]
 
-batchsize = 100
-epochs = 20
+batchsize = 32
+epochs = 10
 
 model.fit_generator(train_generator(batchsize=batchsize),
                     steps_per_epoch=(250000. // batchsize),
