@@ -26,7 +26,7 @@ def get_available_files(pathname,bucket='ds3rdparty',callsystem=False):
         tmp = i.rstrip().split()
         iid = int(tmp[3].split('.')[0])
         iidnums[iid] = 1
-        files.append(base_images_path + i)
+        files.append(base_images_path + tmp[3])
     return iidnums, sorted(files)
 
 #files = glob.glob(base_images_path + "*.jpg")
@@ -34,9 +34,9 @@ def get_available_files(pathname,bucket='ds3rdparty',callsystem=False):
 
 iidnums, files = get_available_files(pathname='/'.join(base_images_path.split('/')[3:6]))
 
-train_image_paths = []
-train_scores = []
-train_files = []
+train_image_paths = [None] * len(files)
+train_scores = [None] * len(files)
+train_files = [None] * len(files)
 scores = {}
 
 gc.disable()
@@ -51,19 +51,24 @@ with open(ava_dataset_path, mode='r') as f:
         scores[iid] = values
 
 count = len(files) // 20
+idx2 = 0
 
-for idx, iid in enumerate(list(scores.keys())):
-    file_path = base_images_path + str(iid) + '.jpg'
-    filename = str(iid) + '.jpg'
-    if os.path.exists(file_path):
-        train_image_paths.append(file_path)
-        train_scores.append(scores[iid])
-        train_files.append(filename)
+for idx, f in enumerate(files):
+    f2 = f.split('/')
+    fname = f2[len(f2)-1]
+    fsplit = fname.split('.')
+    iid = int(fsplit[0])
+    if iid not in scores:
+        continue
+    train_image_paths[idx2] = f
+    train_files[idx2] = fname
+    train_scores[idx2] = scores[iid]
+    idx2 = idx2 + 1
 
     if idx % count == 0 and idx != 0:
         print('Loaded %d percent of the dataset' % (idx / float(len(files)) * 100))
 
-gc.disable()
+gc.enable()
 gc.collect()
 train_image_paths = np.array(train_image_paths)
 train_scores = np.array(train_scores, dtype='float32')
@@ -75,11 +80,11 @@ train_image_paths = train_image_paths[:-5000]
 train_scores = train_scores[:-5000]
 train_files = train_files[:-5000]
 
-train_df = pd.DataFrame({'filename' : train_files})
+train_df = pd.DataFrame({'filename' : train_image_paths})
 train_df = pd.concat([train_df,pd.DataFrame(train_scores)],axis=1,ignore_index=True).reset_index(drop=True)
 train_df.columns = ['filename','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10']
 
-val_df = pd.DataFrame({'filename' : val_files})
+val_df = pd.DataFrame({'filename' : val_image_paths})
 val_df = pd.concat([val_df,pd.DataFrame(val_scores)],axis=1,ignore_index=True).reset_index(drop=True)
 val_df.columns = train_df.columns
 
@@ -130,3 +135,19 @@ val_generator = datagen.flow_from_dataframe(dataframe=val_df,
                                             x_col='filename',
                                             y_col=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'],
                                             batch_size=32)
+
+def image_generator(files,scores,batch_size=64):
+    while True:
+        paths = np.random.choice(a=files,size=batch_size)
+        batch_input = []; batch_output = []
+        for filename in paths:
+            #img = cv2.imread(filename)
+            f2 = filename.split('/')
+            fname = f2[len(f2) - 1]
+            fsplit = fname.split('.')
+            yvar = scores[int(fsplit[0])]
+            inp = parse_data_without_augmentation(filename)
+            batch_input.append(inp); batch_output.append(yvar)
+        batch_x = np.array(batch_input)
+        batch_y = np.array(batch_output)
+        yield(batch_x,batch_y)
