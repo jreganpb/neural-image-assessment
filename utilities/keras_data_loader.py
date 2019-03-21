@@ -79,6 +79,16 @@ val_files = train_files[-5000:]
 train_image_paths = train_image_paths[:-5000]
 train_scores = train_scores[:-5000]
 train_files = train_files[:-5000]
+train_y = {}; val_y = {}
+for f in val_files:
+    f2 = f.split('.')
+    iid = int(f2[0])
+    val_y[iid] = scores[iid]
+
+for f in train_files:
+    f2 = f.split('.')
+    iid = int(f2[0])
+    train_y[iid] = scores[iid]
 
 train_df = pd.DataFrame({'filename' : train_image_paths})
 train_df = pd.concat([train_df,pd.DataFrame(train_scores)],axis=1,ignore_index=True).reset_index(drop=True)
