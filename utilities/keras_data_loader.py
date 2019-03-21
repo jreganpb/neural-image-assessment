@@ -120,22 +120,6 @@ def parse_data_without_augmentation(filename):
     image = image / 255.
     return image
 
-
-#datagen = ImageDataGenerator(preprocessing_function=parse_data_without_augmentation)
-datagen = ImageDataGenerator(preprocessing_function=parse_data_without_augmentation)
-
-train_generator = datagen.flow_from_dataframe(dataframe=train_df,
-                                              directory=base_images_path,
-                                              x_col='filename',
-                                              y_col=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'],
-                                              batch_size=32)
-
-val_generator = datagen.flow_from_dataframe(dataframe=val_df,
-                                            directory=base_images_path,
-                                            x_col='filename',
-                                            y_col=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'],
-                                            batch_size=32)
-
 def image_generator(files,scores,batch_size=64):
     while True:
         paths = np.random.choice(a=files,size=batch_size)
