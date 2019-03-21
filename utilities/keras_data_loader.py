@@ -4,6 +4,7 @@ import tensorflow as tf
 import cv2
 from keras.preprocessing.image import ImageDataGenerator
 import pandas as pd
+import gc
 
 # path to the images and the text file which holds the scores and ids
 base_images_path = r'/mnt/s3/AVA/data/images/'
@@ -11,11 +12,12 @@ ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 
 IMAGE_SIZE = 256 # Keras accepts None for height and width fields.
 
-def get_available_files(pathname,bucket='ds3rdparty'):
-    os.system('rm /tmp/data.txt')
-    q = 'sudo aws s3 ls s3://' + bucket + '/' + pathname + '/ > /tmp/data.txt'
-    os.system(q)
-    with open('/tmp/data.txt', 'r') as f:
+def get_available_files(pathname,bucket='ds3rdparty',callsystem=False):
+    if callsystem:
+        os.system('rm /home/ubuntu/data.txt')
+        q = 'sudo aws s3 ls s3://' + bucket + '/' + pathname + '/ > /home/ubuntu/data.txt'
+        os.system(q)
+    with open('/home/ubuntu/data.txt', 'r') as f:
         dat = f.readlines()
     dat = sorted(dat)
     iidnums = {}
@@ -35,37 +37,40 @@ iidnums, files = get_available_files(pathname='/'.join(base_images_path.split('/
 train_image_paths = []
 train_scores = []
 train_files = []
+scores = {}
 
+gc.disable()
 print("Loading training set and val set")
 with open(ava_dataset_path, mode='r') as f:
     lines = f.readlines()
-    i2 = 0
     for i, line in enumerate(lines):
         token = line.split()
-        id = int(token[1])
-        if id not in iidnums: ## File isn't on S3, continue...
-            continue
+        iid = int(token[1])
         values = np.array(token[2:12], dtype='float32')
         values /= values.sum()
+        scores[iid] = values
 
-        file_path = base_images_path + str(id) + '.jpg'
-        filename = str(id) + '.jpg'
-        if os.path.exists(file_path):
-            train_image_paths.append(file_path)
-            train_scores.append(values)
-            train_files.append(filename)
+count = len(files) // 20
 
-        count = len(files) // 20
-        if i2 % count == 0 and i2 != 0:
-            print('Loaded %d percent of the dataset' % (i2 / float(len(files)) * 100))
-        i2 = i2 + 1
+for idx, iid in enumerate(list(scores.keys())):
+    file_path = base_images_path + str(iid) + '.jpg'
+    filename = str(iid) + '.jpg'
+    if os.path.exists(file_path):
+        train_image_paths.append(file_path)
+        train_scores.append(scores[iid])
+        train_files.append(filename)
 
+    if idx % count == 0 and idx != 0:
+        print('Loaded %d percent of the dataset' % (idx / float(len(files)) * 100))
+
+gc.disable()
+gc.collect()
 train_image_paths = np.array(train_image_paths)
 train_scores = np.array(train_scores, dtype='float32')
 
 val_image_paths = train_image_paths[-5000:]
 val_scores = train_scores[-5000:]
-val_files = train_scores[-5000:]
+val_files = train_files[-5000:]
 train_image_paths = train_image_paths[:-5000]
 train_scores = train_scores[:-5000]
 train_files = train_files[:-5000]
