@@ -55,7 +55,7 @@ def earth_mover_loss(y_true, y_pred):
     samplewise_emd = K.sqrt(K.mean(K.square(K.abs(cdf_ytrue - cdf_ypred)), axis=-1))
     return K.mean(samplewise_emd)
 
-image_size = None
+image_size = 224
 
 base_model = keras.applications.VGG19(input_shape=(image_size, image_size, 3), include_top=False, pooling='avg')
 for layer in base_model.layers:

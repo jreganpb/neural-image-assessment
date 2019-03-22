@@ -140,7 +140,10 @@ def image_generator(files,scores,batch_size=64):
             fname = f2[len(f2) - 1]
             fsplit = fname.split('.')
             yvar = scores[int(fsplit[0])]
-            inp = parse_data_without_augmentation(filename)
+            try:
+                inp = parse_data_without_augmentation(filename)
+            except Exception:
+                continue
             batch_input.append(inp); batch_output.append(yvar)
         batch_x = np.array(batch_input)
         batch_y = np.array(batch_output)
