@@ -82,10 +82,10 @@ checkpoint = ModelCheckpoint('weights/vgg19_weights.h5', monitor='val_loss', ver
 tensorboard = TensorBoardBatch()
 callbacks = [checkpoint, tensorboard]
 
-batchsize = 64
+batchsize = 256
 epochs = 10
 
 model.fit_generator(image_generator(files=train_image_paths,scores=train_y,batch_size=batchsize),
                     steps_per_epoch=len(train_image_paths) // batchsize, epochs=epochs,
                     validation_data=image_generator(files=val_image_paths,scores=val_y,batch_size=batchsize),
-                    validation_steps=len(val_image_paths) // batchsize)
+                    validation_steps=len(val_image_paths) // batchsize,callbacks=callbacks)

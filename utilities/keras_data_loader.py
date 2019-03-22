@@ -10,7 +10,7 @@ import gc
 base_images_path = r'/mnt/s3/AVA/data/images/'
 ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 
-IMAGE_SIZE = 256 # Keras accepts None for height and width fields.
+IMAGE_SIZE = 224 # Keras accepts None for height and width fields.
 
 def get_available_files(pathname,bucket='ds3rdparty',callsystem=False):
     if callsystem:
