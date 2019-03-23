@@ -7,8 +7,8 @@ import pandas as pd
 import gc
 
 # path to the images and the text file which holds the scores and ids
-#base_images_path = r'/mnt/s3/AVA/data/images/'
-base_images_path = r'/home/ubuntu/AVA/images/'
+base_images_path = r'/mnt/s3/AVA/data/images/'
+#base_images_path = r'/home/ubuntu/AVA/images/'
 ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 
 IMAGE_SIZE = 224 # Keras accepts None for height and width fields.
