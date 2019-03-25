@@ -13,7 +13,7 @@ ava_dataset_path = r'/mnt/s3/AVA/AVA.txt'
 
 IMAGE_SIZE = 224 # Keras accepts None for height and width fields.
 
-def get_available_files(pathname,bucket='ds3rdparty',callsystem=False):
+def get_available_files_s3(pathname,bucket='ds3rdparty',callsystem=False):
     if callsystem:
         os.system('rm /home/ubuntu/data.txt')
         q = 'sudo aws s3 ls s3://' + bucket + '/' + pathname + '/ > /home/ubuntu/data.txt'
@@ -30,10 +30,21 @@ def get_available_files(pathname,bucket='ds3rdparty',callsystem=False):
         files.append(base_images_path + tmp[3])
     return iidnums, sorted(files)
 
+def get_available_files_disk(pathname='/home/ubuntu/AVA/images/'):
+    l = os.listdir(pathname)
+    iidnums = {}
+    files = []
+    for i in l:
+        iid = int(i[0].split('.')[0])
+        iidnums[iid] = 1
+        files.append(pathname + i)
+    return iidnums, files
+
 #files = glob.glob(base_images_path + "*.jpg")
 #files = sorted(files)
 
-iidnums, files = get_available_files(pathname='/'.join(base_images_path.split('/')[3:6]))
+#iidnums, files = get_available_files_s3(pathname='/'.join(base_images_path.split('/')[3:6]))
+iidnums, files = get_available_files_disk()
 
 train_image_paths = [None] * len(files)
 train_scores = [None] * len(files)
