@@ -61,7 +61,8 @@ base_model = keras.applications.VGG19(input_shape=(image_size, image_size, 3), i
 for layer in base_model.layers:
     layer.trainable = False
 
-x = Dropout(0.75)(base_model.output)
+x = Dropout(0.25)(base_model.output)
+x = Dense(100,activation='relu')(x)
 x = Dense(10, activation='softmax')(x)
 
 model = Model(base_model.input, x)
