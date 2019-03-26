@@ -61,7 +61,7 @@ base_model = keras.applications.Xception(input_shape=(image_size, image_size, 3)
 for layer in base_model.layers:
     layer.trainable = False
 
-x = Dropout(0.75)(base_model.output)
+x = Dropout(0.5)(base_model.output)
 x = Dense(10, activation='softmax')(x)
 
 model = Model(base_model.input, x)
@@ -83,7 +83,7 @@ tensorboard = TensorBoardBatch()
 callbacks = [checkpoint, tensorboard]
 
 batchsize = 256
-epochs = 10
+epochs = 4
 
 model.fit_generator(image_generator(files=train_image_paths,scores=train_y,batch_size=batchsize),
                     steps_per_epoch=len(train_image_paths) // batchsize, epochs=epochs,
