@@ -151,7 +151,11 @@ def parse_data_without_augmentation(filename):
 
 def image_generator(files,scores,weights=None,batch_size=64):
     if weights is None: # Weights aren't being passed, so weigh everything as 1
-        weights = {}
+        weights = [1] * len(scores)
+        print("Weights not passed to generator...")
+    elif len(weights) != len(scores):
+        weights = [1] * len(scores)
+        print("Invalid weights; not same length as scores, using 1 as default...")
     while True:
         paths = np.random.choice(a=files,size=batch_size)
         batch_input = []; batch_output = []; batch_weight = []
@@ -161,7 +165,7 @@ def image_generator(files,scores,weights=None,batch_size=64):
             fname = f2[len(f2) - 1]
             fsplit = fname.split('.')
             yvar = scores[int(fsplit[0])]
-            wt = weights.get(int(fsplit[0]),1)
+            wt = weights[int(fsplit[0])]
             try:
                 inp = parse_data_without_augmentation(filename)
             except Exception:
