@@ -7,7 +7,7 @@ from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.optimizers import Adam
 from keras import backend as K
 
-from utilities.keras_data_loader import train_image_paths, train_y, val_image_paths, val_y, image_generator
+from utilities.keras_data_loader import train_image_paths, train_y, val_image_paths, val_y, image_generator, train_weights, val_weights
 
 '''
 Below is a modification to the TensorBoard callback to perform
@@ -85,7 +85,7 @@ callbacks = [checkpoint, tensorboard]
 batchsize = 256
 epochs = 4
 
-model.fit_generator(image_generator(files=train_image_paths,scores=train_y,batch_size=batchsize),
+model.fit_generator(image_generator(files=train_image_paths,scores=train_y,batch_size=batchsize,weights=train_weights),
                     steps_per_epoch=len(train_image_paths) // batchsize, epochs=epochs,
-                    validation_data=image_generator(files=val_image_paths,scores=val_y,batch_size=batchsize),
+                    validation_data=image_generator(files=val_image_paths,scores=val_y,batch_size=batchsize,weights={}),
                     validation_steps=len(val_image_paths) // batchsize,callbacks=callbacks)
