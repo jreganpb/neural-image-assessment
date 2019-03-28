@@ -150,7 +150,7 @@ def parse_data_without_augmentation(filename):
     return image
 
 def image_generator(files,scores,weights=None,batch_size=64):
-    if weights == None: # Weights aren't being passed, so weigh everything as 1
+    if weights is None: # Weights aren't being passed, so weigh everything as 1
         weights = {}
     while True:
         paths = np.random.choice(a=files,size=batch_size)
