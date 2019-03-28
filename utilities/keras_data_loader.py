@@ -98,16 +98,18 @@ train_scores = train_scores[:-5000]
 train_files = train_files[:-5000]
 train_weights = train_weights[:-5000]
 
-train_y = {}; val_y = {}
+train_y = {}; val_y = {}; train_wts = {}; val_wts = {}
 for f in val_files:
     f2 = f.split('.')
     iid = int(f2[0])
     val_y[iid] = scores[iid]
+    val_wts[iid] = weights[iid]
 
 for f in train_files:
     f2 = f.split('.')
     iid = int(f2[0])
     train_y[iid] = scores[iid]
+    train_wts[iid] = weights[iid]
 
 train_df = pd.DataFrame({'filename' : train_image_paths})
 train_df = pd.concat([train_df,pd.DataFrame(train_scores)],axis=1,ignore_index=True).reset_index(drop=True)
@@ -151,11 +153,7 @@ def parse_data_without_augmentation(filename):
 
 def image_generator(files,scores,weights=None,batch_size=64):
     if weights is None: # Weights aren't being passed, so weigh everything as 1
-        weights = [1] * len(scores)
-        print("Weights not passed to generator...")
-    elif len(weights) != len(scores):
-        weights = [1] * len(scores)
-        print("Invalid weights; not same length as scores, using 1 as default...")
+        weights = {}
     while True:
         paths = np.random.choice(a=files,size=batch_size)
         batch_input = []; batch_output = []; batch_weight = []
@@ -165,7 +163,7 @@ def image_generator(files,scores,weights=None,batch_size=64):
             fname = f2[len(f2) - 1]
             fsplit = fname.split('.')
             yvar = scores[int(fsplit[0])]
-            wt = weights[int(fsplit[0])]
+            wt = weights.get(int(fsplit[0]),1)
             try:
                 inp = parse_data_without_augmentation(filename)
             except Exception:
