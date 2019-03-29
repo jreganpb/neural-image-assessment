@@ -10,8 +10,10 @@ import gc
 base_images_path = r'/mnt/ds3rdparty/AVA/data/images/'
 #base_images_path = r'/home/ubuntu/AVA/images/'
 ava_dataset_path = r'/mnt/ds3rdparty/AVA/AVA.txt'
+photostats_path = r'/home/ubuntu/scores_ava_analysis.csv'
 
 IMAGE_SIZE = 224 # Keras accepts None for height and width fields.
+STDEV_THRESHOLD = 1.42
 
 def get_available_files_s3(pathname,bucket='ds3rdparty',callsystem=False):
     if callsystem:
@@ -42,14 +44,19 @@ def get_available_files_disk(pathname='/home/ubuntu/AVA/images/'):
 
 #files = glob.glob(base_images_path + "*.jpg")
 #files = sorted(files)
-
+df = pd.read_csv(photostats_path,index_col=None)
+stats = {}; cnt = 0
+for _, row in df.iterrows():
+    stats[row.assetid] = row.stdev
+    if row.stdev <= STDEV_THRESHOLD:
+        cnt = cnt + 1
 #iidnums, files = get_available_files_s3(pathname='/'.join(base_images_path.split('/')[3:6]))
 iidnums, files = get_available_files_disk()
 
-train_image_paths = [None] * len(files)
-train_scores = [None] * len(files)
-train_files = [None] * len(files)
-train_weights = [None] * len(files)
+train_image_paths = [None] * cnt
+train_scores = [None] * cnt
+train_files = [None] * cnt
+train_weights = [None] * cnt
 scores = {}; weights = {} # use weights for images based on votes; average photo in AVA had 210 votes
 
 gc.disable()
@@ -74,6 +81,8 @@ for idx, f in enumerate(files):
     iid = int(fsplit[0])
     if iid not in scores:
         continue
+    if stats[iid] > STDEV_THRESHOLD:
+        continue
     train_image_paths[idx2] = f
     train_files[idx2] = fname
     train_scores[idx2] = scores[iid]
@@ -89,14 +98,14 @@ train_image_paths = np.array(train_image_paths)
 train_scores = np.array(train_scores, dtype='float32')
 train_weights = np.array(train_weights)
 
-val_image_paths = train_image_paths[-5000:]
-val_scores = train_scores[-5000:]
-val_files = train_files[-5000:]
-val_weights = train_weights[-5000:]
-train_image_paths = train_image_paths[:-5000]
-train_scores = train_scores[:-5000]
-train_files = train_files[:-5000]
-train_weights = train_weights[:-5000]
+val_image_paths = train_image_paths[-2500:]
+val_scores = train_scores[-2500:]
+val_files = train_files[-2500:]
+val_weights = train_weights[-2500:]
+train_image_paths = train_image_paths[:-2500]
+train_scores = train_scores[:-2500]
+train_files = train_files[:-2500]
+train_weights = train_weights[:-2500]
 
 train_y = {}; val_y = {}; train_wts = {}; val_wts = {}
 for f in val_files:
