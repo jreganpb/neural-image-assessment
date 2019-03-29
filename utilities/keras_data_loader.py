@@ -53,10 +53,10 @@ for _, row in df.iterrows():
 #iidnums, files = get_available_files_s3(pathname='/'.join(base_images_path.split('/')[3:6]))
 iidnums, files = get_available_files_disk()
 
-train_image_paths = [None] * cnt
-train_scores = [None] * cnt
-train_files = [None] * cnt
-train_weights = [None] * cnt
+image_paths = [None] * len(files)
+image_scores = [None] * len(files)
+image_files = [None] * len(files)
+image_weights = [None] * len(files)
 scores = {}; weights = {} # use weights for images based on votes; average photo in AVA had 210 votes
 
 gc.disable()
@@ -83,10 +83,10 @@ for idx, f in enumerate(files):
         continue
     if stats[iid] > STDEV_THRESHOLD:
         continue
-    train_image_paths[idx2] = f
-    train_files[idx2] = fname
-    train_scores[idx2] = scores[iid]
-    train_weights[idx2] = weights[iid]
+    image_paths[idx2] = f
+    image_files[idx2] = fname
+    image_scores[idx2] = scores[iid]
+    image_weights[idx2] = weights[iid]
     idx2 = idx2 + 1
 
     if idx % count == 0 and idx != 0:
@@ -94,18 +94,18 @@ for idx, f in enumerate(files):
 
 gc.enable()
 gc.collect()
-train_image_paths = np.array(train_image_paths)
-train_scores = np.array(train_scores, dtype='float32')
-train_weights = np.array(train_weights)
+image_paths = np.array(image_paths)
+image_scores = np.array(image_scores, dtype='float32')
+image_weights = np.array(image_weights)
 
-val_image_paths = train_image_paths[-2500:]
-val_scores = train_scores[-2500:]
-val_files = train_files[-2500:]
-val_weights = train_weights[-2500:]
-train_image_paths = train_image_paths[:-2500]
-train_scores = train_scores[:-2500]
-train_files = train_files[:-2500]
-train_weights = train_weights[:-2500]
+val_image_paths = image_paths[-2500:]
+val_scores = image_scores[-2500:]
+val_files = image_files[-2500:]
+val_weights = image_weights[-2500:]
+train_image_paths = image_paths[:-2500]
+train_scores = image_scores[:-2500]
+train_files = image_files[:-2500]
+train_weights = image_weights[:-2500]
 
 train_y = {}; val_y = {}; train_wts = {}; val_wts = {}
 for f in val_files:
