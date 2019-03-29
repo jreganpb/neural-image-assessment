@@ -53,10 +53,10 @@ for _, row in df.iterrows():
 #iidnums, files = get_available_files_s3(pathname='/'.join(base_images_path.split('/')[3:6]))
 iidnums, files = get_available_files_disk()
 
-image_paths = [None] * len(files)
-image_scores = [None] * len(files)
-image_files = [None] * len(files)
-image_weights = [None] * len(files)
+image_paths = [None] * cnt
+image_scores = [None] * cnt
+image_files = [None] * cnt
+image_weights = [None] * cnt
 scores = {}; weights = {} # use weights for images based on votes; average photo in AVA had 210 votes
 
 gc.disable()
