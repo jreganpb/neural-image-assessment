@@ -53,10 +53,10 @@ for _, row in df.iterrows():
 #iidnums, files = get_available_files_s3(pathname='/'.join(base_images_path.split('/')[3:6]))
 iidnums, files = get_available_files_disk()
 
-image_paths = [None] * cnt
-image_scores = [None] * cnt
-image_files = [None] * cnt
-image_weights = [None] * cnt
+image_paths = []
+image_scores = []
+image_files = []
+image_weights = []
 scores = {}; weights = {} # use weights for images based on votes; average photo in AVA had 210 votes
 
 gc.disable()
@@ -83,10 +83,10 @@ for idx, f in enumerate(files):
         continue
     if stats[iid] > STDEV_THRESHOLD:
         continue
-    image_paths[idx2] = f
-    image_files[idx2] = fname
-    image_scores[idx2] = scores[iid]
-    image_weights[idx2] = weights[iid]
+    image_paths.append(f)
+    image_files.append(fname)
+    image_scores.append(scores[iid])
+    image_weights.append(weights[iid])
     idx2 = idx2 + 1
 
     if idx % count == 0 and idx != 0:
