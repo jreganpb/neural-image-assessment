@@ -71,15 +71,13 @@ def parse_data_without_augmentation(filename):
     return image
 
 def image_generator(files,scores,batch_size=64):
+    indexes = np.array(range(len(files)))
     while True:
-        paths = np.random.choice(a=files,size=batch_size)
+        paths = np.random.choice(a=indexes,size=batch_size)
         batch_input = []; batch_output = []; batch_weight = []
-        for filename in paths:
+        for ix in paths:
             #img = cv2.imread(filename)
-            f2 = filename.split('/')
-            fname = f2[len(f2) - 1]
-            fsplit = fname.split('.')
-            yvar = scores[int(fsplit[0])]
+            filename = files[ix]; yvar=scores[ix]
             try:
                 inp = parse_data_without_augmentation(filename)
             except Exception:
