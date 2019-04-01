@@ -90,7 +90,7 @@ def image_generator(files,scores,batch_size=64):
 
 def calculating_class_weights(y_true:np.ndarray):
     from sklearn.utils.class_weight import compute_class_weight
-    number_dim = y_true.shape[1]
+    number_dim = len(y_true)
     weights = np.empty([number_dim, 2])
     for i in range(number_dim):
         weights[i] = compute_class_weight('balanced', [0., 1.], y_true[:, i])
