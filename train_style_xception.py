@@ -56,7 +56,7 @@ base_model = keras.applications.Xception(input_shape=(image_size, image_size, 3)
 for layer in base_model.layers:
     layer.trainable = False
 
-x = Dropout(0.75)(base_model.output)
+x = Dropout(0.9)(base_model.output)
 x = Dense(14, activation='sigmoid')(x)
 
 model = Model(base_model.input, x)
