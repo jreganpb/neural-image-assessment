@@ -5,6 +5,7 @@ from keras.layers import Dense, Dropout
 import keras
 from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.optimizers import Adam
+import keras.backend as K
 
 from utilities.keras_style_loader import train_labels, train_files, test_labels, test_files, image_generator, train_wts
 
@@ -48,6 +49,14 @@ class TensorBoardBatch(TensorBoard):
 
         self.writer.flush()
 
+def weighted_loss(weights):
+    def weighted_loss(y_true, y_pred):
+        return K.mean(
+            (weights[:, 0] ** (1 - y_true)) * (weights[:, 1] ** (y_true)) * K.binary_crossentropy(y_true, y_pred),
+            axis=-1)
+
+    return weighted_loss
+
 ## Dataset is much smaller here, so we can load dataset in its entirety
 
 image_size = 224
@@ -62,7 +71,7 @@ x = Dense(14, activation='sigmoid')(x)
 model = Model(base_model.input, x)
 #model.summary()
 optimizer = Adam(lr=1e-3)
-model.compile(optimizer, loss='binary_crossentropy')
+model.compile(optimizer, loss=weighted_loss(train_wts))
 
 # load weights from trained model if it exists
 if os.path.exists('style_weights/xception_weights.h5'):
@@ -80,7 +89,7 @@ callbacks = [checkpoint, tensorboard]
 batchsize = 256
 epochs = 20
 
-model.fit_generator(image_generator(files=train_files,scores=train_labels,batch_size=batchsize),class_weight=train_wts,
+model.fit_generator(image_generator(files=train_files,scores=train_labels,batch_size=batchsize),
                     steps_per_epoch=len(train_files) // batchsize, epochs=epochs,
                     validation_data=image_generator(files=test_files,scores=test_labels,batch_size=batchsize),
                     validation_steps=len(test_files) // batchsize,callbacks=callbacks)

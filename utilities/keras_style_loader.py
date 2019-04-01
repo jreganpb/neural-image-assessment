@@ -88,6 +88,14 @@ def image_generator(files,scores,batch_size=64):
         batch_y = np.array(batch_output)
         yield(batch_x,batch_y)
 
+def calculating_class_weights(y_true:np.ndarray):
+    from sklearn.utils.class_weight import compute_class_weight
+    number_dim = y_true.shape[1]
+    weights = np.empty([number_dim, 2])
+    for i in range(number_dim):
+        weights[i] = compute_class_weight('balanced', [0., 1.], y_true[:, i])
+    return weights
+
 with open(base_data_path + 'train.jpgl','r') as f:
     style_images = f.readlines()
     for d in range(len(style_images)):
@@ -110,8 +118,9 @@ for ix, i in enumerate(style_images):
 
 enc = OneHotEncoder()
 train_files = np.array(train_files); train_labels = enc.fit_transform(np.array(train_labels).reshape(len(train_labels),1)).toarray()
-train_wts = compute_class_weight('balanced',np.unique(style_labels),np.array(style_labels))
-train_wts = dict(enumerate(train_wts))
+#train_wts = compute_class_weight('balanced',np.unique(style_labels),np.array(style_labels))
+#train_wts = dict(enumerate(train_wts))
+train_wts = calculating_class_weights(np.array(style_labels))
 
 with open(base_data_path + 'test.jpgl','r') as f:
     tmp_images = f.readlines()
