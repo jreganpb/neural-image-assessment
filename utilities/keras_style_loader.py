@@ -117,8 +117,8 @@ for ix, i in enumerate(style_images):
     train_files.append(fname); train_labels.append(style_labels[ix])
 
 enc = OneHotEncoder()
-train_wts = calculating_class_weights(np.array(train_labels))
 train_files = np.array(train_files); train_labels = enc.fit_transform(np.array(train_labels).reshape(len(train_labels),1)).toarray()
+train_wts = calculating_class_weights(np.array(train_labels))
 
 with open(base_data_path + 'test.jpgl','r') as f:
     tmp_images = f.readlines()
