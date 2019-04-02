@@ -14,7 +14,7 @@ base_data_path = r'/mnt/ds3rdparty/AVA/style_image_lists/'
 base_disk_path = r'/home/ubuntu/AVA/images/'
 ava_dataset_path = r'/mnt/ds3rdparty/AVA/AVA.txt'
 
-IMAGE_SIZE = 224 # Keras accepts None for height and width fields.
+IMAGE_SIZE = None # Keras accepts None for height and width fields.
 
 def get_available_files_s3(pathname,bucket='ds3rdparty',callsystem=False):
     if callsystem:
@@ -66,15 +66,16 @@ def parse_data_without_augmentation(filename):
         an image referred to by the filename and its scores
     '''
     image = cv2.imread(filename)
-    image = pad_image(image)
-    image = cv2.resize(image,(IMAGE_SIZE,IMAGE_SIZE))
+    if IMAGE_SIZE:
+        image = pad_image(image)
+        image = cv2.resize(image,(IMAGE_SIZE,IMAGE_SIZE))
     image = image / 255.
     return image
 
-def image_generator(files,scores,batch_size=64):
+def image_generator(files,scores):
     indexes = np.array(range(len(files)))
     while True:
-        paths = np.random.choice(a=indexes,size=batch_size)
+        paths = np.random.choice(a=indexes,size=1)
         batch_input = []; batch_output = []; batch_weight = []
         for ix in paths:
             #img = cv2.imread(filename)

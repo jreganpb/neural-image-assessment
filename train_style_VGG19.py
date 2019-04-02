@@ -59,7 +59,7 @@ def weighted_binary_loss(weights):
 
 ## Dataset is much smaller here, so we can load dataset in its entirety
 
-image_size = 224
+image_size = None
 
 base_model = keras.applications.VGG19(input_shape=(image_size, image_size, 3), include_top=False, pooling='avg')
 for layer in base_model.layers:
@@ -86,10 +86,10 @@ checkpoint = ModelCheckpoint('style_weights/vgg19_weights.h5', monitor='val_loss
 tensorboard = TensorBoardBatch()
 callbacks = [checkpoint, tensorboard]
 
-batchsize = 256
+batchsize = 1
 epochs = 20
 
-model.fit_generator(image_generator(files=train_files,scores=train_labels,batch_size=batchsize),
+model.fit_generator(image_generator(files=train_files,scores=train_labels),
                     steps_per_epoch=len(train_files) // batchsize, epochs=epochs,
-                    validation_data=image_generator(files=test_files,scores=test_labels,batch_size=batchsize),
+                    validation_data=image_generator(files=test_files,scores=test_labels),
                     validation_steps=len(test_files) // batchsize,callbacks=callbacks)
