@@ -69,6 +69,9 @@ def parse_data_without_augmentation(filename):
     if IMAGE_SIZE:
         image = pad_image(image)
         image = cv2.resize(image,(IMAGE_SIZE,IMAGE_SIZE))
+    else:
+        resize = 448. / float(max(image.shape))
+        image = cv2.resize(image,(0,0),fx=resize,fy=resize)
     image = image / 255.
     return image
 
