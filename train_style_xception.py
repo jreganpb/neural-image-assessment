@@ -49,7 +49,7 @@ class TensorBoardBatch(TensorBoard):
 
         self.writer.flush()
 
-def weighted_loss(weights):
+def weighted_binary_loss(weights):
     def weighted_loss(y_true, y_pred):
         return K.mean(
             (weights[:, 0] ** (1 - y_true)) * (weights[:, 1] ** (y_true)) * K.binary_crossentropy(y_true, y_pred),
@@ -71,7 +71,7 @@ x = Dense(14, activation='sigmoid')(x)
 model = Model(base_model.input, x)
 #model.summary()
 optimizer = Adam(lr=1e-3)
-model.compile(optimizer, loss=weighted_loss(train_wts))
+model.compile(optimizer, loss=weighted_binary_loss(train_wts))
 
 # load weights from trained model if it exists
 if os.path.exists('style_weights/xception_weights.h5'):
