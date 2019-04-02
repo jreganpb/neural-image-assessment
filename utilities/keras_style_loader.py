@@ -66,6 +66,7 @@ def parse_data_without_augmentation(filename):
         an image referred to by the filename and its scores
     '''
     image = cv2.imread(filename)
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
     if IMAGE_SIZE:
         image = pad_image(image)
         image = cv2.resize(image,(IMAGE_SIZE,IMAGE_SIZE))
