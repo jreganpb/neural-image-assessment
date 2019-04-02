@@ -71,7 +71,7 @@ x = Dense(14, activation='sigmoid')(x)
 model = Model(base_model.input, x)
 #model.summary()
 optimizer = Adam(lr=1e-3)
-model.compile(optimizer, loss=weighted_binary_loss(train_wts))
+model.compile(optimizer, loss=weighted_binary_loss(train_wts ** 0.5))
 
 # load weights from trained model if it exists
 if os.path.exists('style_weights/xception_weights.h5'):
