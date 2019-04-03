@@ -71,7 +71,7 @@ x = Dense(14, activation='sigmoid')(x)
 model = Model(base_model.input, x)
 #model.summary()
 optimizer = Adam(lr=1e-3)
-model.compile(optimizer, loss='binary_crossentropy')
+model.compile(optimizer, loss=weighted_binary_loss(train_wts))
 
 # load weights from trained model if it exists
 if os.path.exists('style_weights/vgg19_weights.h5'):
