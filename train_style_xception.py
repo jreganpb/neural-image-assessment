@@ -89,7 +89,7 @@ callbacks = [checkpoint, tensorboard]
 batchsize = 256
 epochs = 20
 
-model.fit_generator(image_generator(files=train_files,scores=train_labels,batch_size=batchsize),
+model.fit_generator(image_generator(files=train_files,scores=train_labels),
                     steps_per_epoch=len(train_files) // batchsize, epochs=epochs,
-                    validation_data=image_generator(files=test_files,scores=test_labels,batch_size=batchsize),
+                    validation_data=image_generator(files=test_files,scores=test_labels),
                     validation_steps=len(test_files) // batchsize,callbacks=callbacks)
