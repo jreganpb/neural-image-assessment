@@ -59,7 +59,7 @@ def weighted_binary_loss(weights):
 
 ## Dataset is much smaller here, so we can load dataset in its entirety
 
-image_size = 224
+image_size = None
 
 base_model = keras.applications.Xception(input_shape=(image_size, image_size, 3), include_top=False, pooling='avg')
 for layer in base_model.layers:
