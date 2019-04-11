@@ -66,7 +66,7 @@ for layer in base_model.layers:
     layer.trainable = False
 
 x = Dropout(0.9)(base_model.output)
-x = Dense(14, activation='sigmoid')(x)
+x = Dense(14, activation='softmax')(x)
 
 model = Model(base_model.input, x)
 #model.summary()
